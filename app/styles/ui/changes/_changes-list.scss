@@ -12,6 +12,11 @@
   min-height: 100px;
 
   .header {
+    // For ChangesList (non-filtered)
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
     background: var(--box-alt-background-color);
     border-bottom: 1px solid var(--box-border-color);
     padding: 0 var(--spacing);
@@ -137,8 +142,11 @@
       }
 
       .checkbox-container {
+        // For FilterChangesList
         display: flex;
         align-items: center;
+        justify-content: space-between;
+        flex-grow: 1; // Ensure it takes available space to push button to the right if not intrinsically handled
 
         .spacer {
           flex-grow: 1;

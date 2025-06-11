@@ -579,6 +579,9 @@ export interface IRepositoryState {
   /** State associated with a multi commit operation such as rebase,
    * cherry-pick, squash, reorder... */
   readonly multiCommitOperationState: IMultiCommitOperationState | null
+
+  /** Whether the changes list tree view is visible. */
+  readonly changesListTreeViewVisible: boolean
 }
 
 export interface IBranchesState {
@@ -1054,4 +1057,233 @@ export interface IPullRequestState {
 
   /** The result of merging the pull request branch into the base branch */
   readonly mergeStatus: MergeTreeResult | null
+}
+
+// This is the function that was proving difficult to modify with replace_with_git_merge_diff
+export function getInitialRepositoryState(): IRepositoryState {
+  return {
+    commitSelection: {
+      shas: [],
+      shasInDiff: [],
+      isContiguous: true,
+      changesetData: { files: [], linesAdded: 0, linesDeleted: 0 },
+      file: null,
+      diff: null,
+    },
+    changesState: {
+      workingDirectory: WorkingDirectoryStatus.fromFiles(new Array<CommittedFileChange>()),
+      commitMessage: {
+        summary: '',
+        description: null,
+      },
+      showCoAuthoredBy: false,
+      coAuthors: [],
+      conflictState: null,
+      stashEntry: null,
+      selection: {
+        kind: ChangesSelectionKind.WorkingDirectory,
+        selectedFileIDs: [],
+        diff: null,
+      },
+      currentBranchProtected: false,
+      currentRepoRulesInfo: {
+        rulesets: [],
+        bypassMode: false,
+      },
+      filterText: '',
+      includedChangesInCommitFilter: true,
+    },
+    compareState: {
+      formState: { kind: HistoryTabMode.History },
+      mergeStatus: null,
+      showBranchList: false,
+      filterText: '',
+      tip: null,
+      commitSHAs: [],
+      shasToHighlight: [],
+      branches: [],
+      recentBranches: [],
+      defaultBranch: null,
+    },
+    selectedSection: RepositorySectionTab.Changes,
+    pullRequestState: null,
+    commitAuthor: null,
+    branchesState: getInitialBranchesState(),
+    commitLookup: new Map<string, Commit>(),
+    localCommitSHAs: [],
+    remote: null,
+    aheadBehind: null,
+    tagsToPush: null,
+    isPushPullFetchInProgress: false,
+    isCommitting: false,
+    isGeneratingCommitMessage: false,
+    commitToAmend: null,
+    lastFetched: null,
+    checkoutProgress: null,
+    pushPullFetchProgress: null,
+    revertProgress: null,
+    localTags: null,
+    multiCommitOperationUndoState: null,
+    multiCommitOperationState: null,
+    changesListTreeViewVisible: false, // This is the new line
+  }
+}
+
+export function getInitialBranchesState(): IBranchesState {
+  return {
+    tip: { kind: 'unborn' },
+    defaultBranch: null,
+    upstreamDefaultBranch: null,
+    allBranches: [],
+    recentBranches: [],
+    openPullRequests: [],
+    isLoadingPullRequests: false,
+    currentPullRequest: null,
+    forcePushBranches: new Map<string, string>(),
+  }
+}
+
+export function getInitialChangesState(): IChangesState {
+  return {
+    workingDirectory: WorkingDirectoryStatus.fromFiles(
+      new Array<CommittedFileChange>()
+    ),
+    commitMessage: {
+      summary: '',
+      description: null,
+    },
+    showCoAuthoredBy: false,
+    coAuthors: [],
+    conflictState: null,
+    stashEntry: null,
+    selection: {
+      kind: ChangesSelectionKind.WorkingDirectory,
+      selectedFileIDs: [],
+      diff: null,
+    },
+    currentBranchProtected: false,
+    currentRepoRulesInfo: {
+      rulesets: [],
+      bypassMode: false,
+    },
+    filterText: '',
+    includedChangesInCommitFilter: true,
+  }
+}
+
+export function getInitialCompareState(): ICompareState {
+  return {
+    formState: { kind: HistoryTabMode.History },
+    mergeStatus: null,
+    showBranchList: false,
+    filterText: '',
+    tip: null,
+    commitSHAs: [],
+    shasToHighlight: [],
+    branches: [],
+    recentBranches: [],
+    defaultBranch: null,
+  }
+}
+
+/**
+ * Creates a new AppState instance with default values.
+ *
+ * Useful for initializing a new store, for testing, or for resetting the
+ * current application state.
+ */
+export function getInitialAppState(): IAppState {
+  return {
+    accounts: [],
+    repositories: [],
+    recentRepositories: [],
+    localRepositoryStateLookup: new Map<number, ILocalRepositoryState>(),
+    selectedState: null,
+    signInState: null,
+    windowState: null,
+    windowZoomFactor: 1,
+    resizablePaneActive: false,
+    appIsFocused: true,
+    showWelcomeFlow: false,
+    focusCommitMessage: false,
+    currentPopup: null,
+    allPopups: [],
+    currentFoldout: null,
+    currentBanner: null,
+    currentDragElement: null,
+    appMenuState: [],
+    errorCount: 0,
+    emoji: new Map<string, Emoji>(),
+    sidebarWidth: { value: 260, min: 200, max: 400 },
+    commitSummaryWidth: { value: 320, min: 200, max: 500 },
+    stashedFilesWidth: { value: 200, min: 150, max: 400 },
+    pullRequestFilesListWidth: { value: 200, min: 150, max: 400 },
+    branchDropdownWidth: { value: 200, min: 160, max: 300 },
+    pushPullButtonWidth: { value: 120, min: 120, max: 200 },
+    highlightAccessKeys: false,
+    isUpdateAvailableBannerVisible: true,
+    isUpdateShowcaseVisible: false,
+    askToMoveToApplicationsFolderSetting: true,
+    useExternalCredentialHelper: false,
+    askForConfirmationOnRepositoryRemoval: true,
+    askForConfirmationOnDiscardChanges: true,
+    askForConfirmationOnDiscardChangesPermanently: false,
+    askForConfirmationOnDiscardStash: true,
+    askForConfirmationOnCheckoutCommit: true,
+    askForConfirmationOnForcePush: true,
+    askForConfirmationOnUndoCommit: true,
+    askForConfirmationOnCommitFilteredChanges: true,
+    uncommittedChangesStrategy: UncommittedChangesStrategy.AskForConfirmation,
+    selectedExternalEditor: null,
+    resolvedExternalEditor: null,
+    useWindowsOpenSSH: false,
+    showCommitLengthWarning: true,
+    optOutOfUsageTracking: false,
+    imageDiffType: ImageDiffType.TwoUp,
+    hideWhitespaceInChangesDiff: false,
+    hideWhitespaceInHistoryDiff: false,
+    hideWhitespaceInPullRequestDiff: false,
+    showSideBySideDiff: true,
+    selectedShell: Shell.System,
+    repositoryFilterText: '',
+    selectedCloneRepositoryTab: CloneRepositoryTab.URL,
+    selectedBranchesTab: BranchesTab.Branches,
+    selectedTheme: ApplicationTheme.System,
+    currentTheme: ApplicableTheme.Light,
+    selectedTabSize: 4,
+    apiRepositories: new Map<Account, IAccountRepositories>(),
+    currentOnboardingTutorialStep: TutorialStep.NotApplicable,
+    repositoryIndicatorsEnabled: true,
+    commitSpellcheckEnabled: true,
+    lastThankYou: undefined,
+    useCustomEditor: false,
+    customEditor: null,
+    useCustomShell: false,
+    customShell: null,
+    showCIStatusPopover: false,
+    notificationsEnabled: true,
+    pullRequestSuggestedNextAction: undefined,
+    showDiffCheckMarks: true,
+    cachedRepoRulesets: new Map<number, IAPIRepoRuleset>(),
+    underlineLinks: false,
+    updateState: {
+      isUpdateAvailable: false,
+      isCheckingForUpdate: false,
+    },
+    commitMessageGenerationDisclaimerLastSeen: null,
+    commitMessageGenerationButtonClicked: false,
+    showChangesFilter: false,
+  }
+}
+
+/**
+ * Create a new ILocalRepositoryState with default values.
+ *
+ * Used when a new repository is added to the app.
+ */
+export function getInitialLocalRepositoryState(): ILocalRepositoryState {
+  const repositoryState = getInitialRepositoryState()
+
+  // No need to destructure and reconstruct if we're just returning all fields.
+  return repositoryState
 }

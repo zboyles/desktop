@@ -45,6 +45,7 @@ import {
 import { ContinueRebase } from './continue-rebase'
 import { Octicon, OcticonSymbolVariant } from '../octicons'
 import * as octicons from '../octicons/octicons.generated'
+import { list, organization } from '../octicons/octicons.generated'
 import { IStashEntry } from '../../models/stash-entry'
 import classNames from 'classnames'
 import { hasWritePermission } from '../../models/github-repository'
@@ -69,6 +70,7 @@ import {
 } from '../lib/popover'
 import { LinkButton } from '../lib/link-button'
 import { plural } from '../lib/plural'
+import { OcticonButton } from '../lib/octicon-button'
 
 interface IChangesListItem extends IFilterListItem {
   readonly id: string
@@ -228,6 +230,8 @@ interface IFilterChangesListProps {
 
   /** Whether or not to show the changes filter */
   readonly showChangesFilter: boolean
+  changesListTreeViewVisible?: boolean
+  onChangesListTreeViewVisibleChanged?: (visible: boolean) => void
 }
 
 interface IFilterChangesListState {
@@ -1234,7 +1238,7 @@ export class FilterChangesList extends React.Component<
     ${files.length} changed file${plural(files.length)}`
 
     return (
-      <div className="checkbox-container">
+      <div className="checkbox-container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexGrow: 1 }}>
         <Checkbox
           ref={this.includeAllCheckBoxRef}
           value={includeAllValue}
@@ -1243,6 +1247,11 @@ export class FilterChangesList extends React.Component<
           ariaLabelledBy="changes-list-check-all-label"
           className="changes-list-check-all"
           label={checkAllLabel}
+        />
+        <OcticonButton
+          icon={this.props.changesListTreeViewVisible ? octicons.list : octicons.organization}
+          onClick={() => this.props.onChangesListTreeViewVisibleChanged?.(!this.props.changesListTreeViewVisible)}
+          tooltip={this.props.changesListTreeViewVisible ? "Toggle List View" : "Toggle Tree View"}
         />
       </div>
     )

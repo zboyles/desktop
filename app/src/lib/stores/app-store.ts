@@ -461,6 +461,8 @@ const commitMessageGenerationButtonClickedKey =
 export const showChangesFilterKey = 'show-changes-filter'
 export const showChangesFilterDefault = true
 
+const changesListTreeViewVisibleStateKey = 'repository-changeslist-treeview-visible-lookup'
+
 export class AppStore extends TypedBaseStore<IAppState> {
   private readonly gitStoreCache: GitStoreCache
 
@@ -615,6 +617,8 @@ export class AppStore extends TypedBaseStore<IAppState> {
   private commitMessageGenerationButtonClicked: boolean = false
 
   private showChangesFilter: boolean = false
+
+  private persistedChangesListTreeViewVisible: Record<number, boolean> = {}
 
   public constructor(
     private readonly gitHubUserStore: GitHubUserStore,
@@ -2351,6 +2355,27 @@ export class AppStore extends TypedBaseStore<IAppState> {
       showChangesFilterKey,
       showChangesFilterDefault
     )
+
+    const persistedTreeViewStates = getObject<Record<number, boolean>>(
+      changesListTreeViewVisibleStateKey
+    )
+    if (persistedTreeViewStates !== undefined) {
+      this.persistedChangesListTreeViewVisible = persistedTreeViewStates
+    }
+
+    // After repositories are loaded, apply any persisted tree view visibility states.
+    // This needs to happen after repositoryStateCache might be populated by initial get.
+    this.repositories.forEach(repo => {
+      const visible = this.persistedChangesListTreeViewVisible[repo.id]
+      if (visible !== undefined) {
+        // Ensure state is initialized in cache
+        this.repositoryStateCache.get(repo)
+        this.repositoryStateCache.update(repo, s => ({
+          ...s,
+          changesListTreeViewVisible: visible,
+        }))
+      }
+    })
 
     this.emitUpdateNow()
 
@@ -8372,6 +8397,24 @@ export class AppStore extends TypedBaseStore<IAppState> {
     setBoolean(showChangesFilterKey, this.showChangesFilter)
     this.updateMenuLabelsForSelectedRepository()
     this.emitUpdate()
+  }
+
+  /**
+   * Persists the tree view visibility state for a given repository.
+   * This method should be called by the dispatcher after the in-memory
+   * state in RepositoryStateCache has been updated.
+   */
+  public _persistChangesListTreeViewVisible(
+    repository: Repository,
+    visible: boolean
+  ): void {
+    this.persistedChangesListTreeViewVisible[repository.id] = visible
+    setObject(
+      changesListTreeViewVisibleStateKey,
+      this.persistedChangesListTreeViewVisible
+    )
+    // No direct emitUpdate() here as the primary state change in the cache
+    // should have already triggered it via the dispatcher.
   }
 }
 

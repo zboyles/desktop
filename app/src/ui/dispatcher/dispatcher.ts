@@ -4027,4 +4027,15 @@ export class Dispatcher {
   public toggleChangesFilterVisibility() {
     this.appStore._toggleChangesFilterVisibility()
   }
+
+  public setChangesListTreeViewVisible(repository: Repository, visible: boolean) {
+    // Update the in-memory state via RepositoryStateCache
+    this.repositoryStateManager.update(repository, currentState => ({
+      ...currentState,
+      changesListTreeViewVisible: visible,
+    }))
+
+    // Persist this specific state change via AppStore
+    this.appStore._persistChangesListTreeViewVisible(repository, visible)
+  }
 }

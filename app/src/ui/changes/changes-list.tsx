@@ -46,6 +46,7 @@ import {
 import { ContinueRebase } from './continue-rebase'
 import { Octicon, OcticonSymbolVariant } from '../octicons'
 import * as octicons from '../octicons/octicons.generated'
+import { list, organization } from '../octicons/octicons.generated'
 import { IStashEntry } from '../../models/stash-entry'
 import classNames from 'classnames'
 import { hasWritePermission } from '../../models/github-repository'
@@ -59,6 +60,7 @@ import { RepoRulesInfo } from '../../models/repo-rules'
 import { IAheadBehind } from '../../models/branch'
 import { StashDiffViewerId } from '../stashing'
 import { enableFilteredChangesList } from '../../lib/feature-flag'
+import { OcticonButton } from '../lib/octicon-button'
 
 const RowHeight = 29
 const StashIcon: OcticonSymbolVariant = {
@@ -230,6 +232,8 @@ interface IChangesListProps {
   readonly showCommitLengthWarning: boolean
 
   readonly accounts: ReadonlyArray<Account>
+  changesListTreeViewVisible?: boolean
+  onChangesListTreeViewVisibleChanged?: (visible: boolean) => void
 }
 
 interface IChangesState {
@@ -1031,6 +1035,7 @@ export class ChangesList extends React.Component<
             className="header"
             onContextMenu={this.onContextMenu}
             ref={this.headerRef}
+            style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
           >
             <TooltippedContent
               tooltip={selectedChangesDescription}
@@ -1047,6 +1052,11 @@ export class ChangesList extends React.Component<
                 ariaDescribedBy="changesDescription"
               />
             </TooltippedContent>
+            <OcticonButton
+              icon={this.props.changesListTreeViewVisible ? octicons.list : octicons.organization}
+              onClick={() => this.props.onChangesListTreeViewVisibleChanged?.(!this.props.changesListTreeViewVisible)}
+              tooltip={this.props.changesListTreeViewVisible ? "Toggle List View" : "Toggle Tree View"}
+            />
             <div className="sr-only" id="changesDescription">
               {selectedChangesDescription}
             </div>
