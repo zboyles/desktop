@@ -1,0 +1,82 @@
+.changes-tree-list {
+  // General container styling if needed, e.g., height, overflow
+  // Mirroring .file-list from _list.scss might be a good start for some properties
+  // For now, assuming parent container (.changes-list-container) handles overflow and height.
+
+  .changes-tree-list-row {
+    display: flex; // Ensures items in the row are laid out inline
+    align-items: center; // Vertically aligns items in the row
+    padding: 2px var(--spacing-half); // Consistent with some list item paddings, adjust as needed
+    user-select: none; // Prevent text selection on click/drag, common for list items
+
+    &:hover {
+      background-color: var(--list-item-hover-background-color);
+    }
+
+    &.selected {
+      background-color: var(--list-item-selected-background-color);
+      color: var(--list-item-selected-text-color);
+
+      // Ensure ChangedFile component's text also inherits selection color
+      // These selectors depend on the internal structure of ChangedFile
+      .changed-file-path,
+      .file-status .octicon, // Assuming status is an octicon inside a .file-status span/div
+      .checkbox .label, // If ChangedFile has a checkbox with a label
+      .octicon { // General octicons within ChangedFile if not covered above
+         color: var(--list-item-selected-text-color);
+      }
+
+      // If ChangedFile uses specific classes for its text elements, target them:
+      // Example:
+      // .path-text-component { color: var(--list-item-selected-text-color); }
+      // .description-text-component { color: var(--list-item-selected-text-color); }
+    }
+
+    &.folder-node { // Class added in ChangesTreeList.tsx for folder rows
+      // cursor: pointer; // Already added inline, but can be here for consistency
+      // Specific styles for folder rows if needed
+    }
+
+    .expansion-icon {
+      margin-right: 5px; // Space between expander and name/icon
+      // Ensure it's vertically aligned if it's not by default
+      display: inline-flex; // Helps with alignment
+      align-items: center;
+    }
+
+    .folder-name {
+      // Styling for folder names if needed
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    // Wrapper for ChangedFile if it was added; if ChangedFile is direct child, this isn't needed.
+    // If ChangedFile component itself is a flex item, this might not be necessary.
+    // The current TSX structure makes ChangedFile a direct child of the row div.
+    .changed-file-component { // Assuming ChangedFile's root element has this class or similar
+      flex-grow: 1; // Allow ChangedFile to take remaining space
+      min-width: 0; // Prevent overflow issues in flex children
+    }
+  }
+
+  // Indentation is currently handled by inline style (paddingLeft) in ChangesTreeList.tsx
+}
+
+// Ensure that when a row is selected, the Octicons within ChangedFile also get the selected color.
+// This is a more general attempt if the above specific selectors are not enough.
+.changes-tree-list-row.selected .octicon {
+  color: var(--list-item-selected-text-color);
+}
+
+// Ensure checkboxes within selected rows also adopt the selection color.
+.changes-tree-list-row.selected .checkbox .label,
+.changes-tree-list-row.selected .checkbox input[type='checkbox'] + .label::before { // For custom checkbox UI
+  color: var(--list-item-selected-text-color);
+}
+// If the checkbox checkmark is an SVG or another element, its fill/stroke might also need adjustment.
+// For default browser checkboxes, this might not be stylable directly.
+// For custom checkboxes (like the one in app/src/ui/lib/checkbox.tsx):
+.changes-tree-list-row.selected .checkbox input[type='checkbox']:checked + .label .octicon-check {
+  color: var(--list-item-selected-text-color); // Assuming the checkmark is an octicon
+}

@@ -71,6 +71,7 @@ import {
 import { LinkButton } from '../lib/link-button'
 import { plural } from '../lib/plural'
 import { OcticonButton } from '../lib/octicon-button'
+import { ChangesTreeList } from './changes-tree-list'
 
 interface IChangesListItem extends IFilterListItem {
   readonly id: string
@@ -1383,10 +1384,22 @@ export class FilterChangesList extends React.Component<
     return (
       <>
         <div className="changes-list-container file-list filtered-changes-list">
-          <AugmentedSectionFilterList<IChangesListItem>
-            ref={this.filterListRef}
-            id="changes-list"
-            rowHeight={RowHeight}
+          {this.props.changesListTreeViewVisible ? (
+            <ChangesTreeList
+              repository={this.props.repository}
+              workingDirectory={this.props.workingDirectory} // Full list, filtering TBD
+              selectedFileIDs={this.props.selectedFileIDs}
+              // onFileSelectionChanged is not needed here as ChangesTreeList uses the dispatcher directly
+              onIncludeChanged={this.props.onIncludeChanged}
+              availableWidth={this.props.availableWidth}
+              onOpenItemInExternalEditor={this.props.onOpenItemInExternalEditor}
+              dispatcher={this.props.dispatcher}
+            />
+          ) : (
+            <AugmentedSectionFilterList<IChangesListItem>
+              ref={this.filterListRef}
+              id="changes-list"
+              rowHeight={RowHeight}
             filterText={
               this.props.showChangesFilter ? this.props.filterText : ''
             }
@@ -1420,7 +1433,8 @@ export class FilterChangesList extends React.Component<
             getGroupAriaLabel={this.getListAriaLabel}
             renderNoItems={this.renderNoChanges}
             postNoResultsMessage={this.getNoResultsMessage()}
-          />
+            />
+          )}
         </div>
         {this.renderStashedChanges()}
         {this.renderHiddenChangesWarning()}

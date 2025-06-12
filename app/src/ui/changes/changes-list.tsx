@@ -61,6 +61,7 @@ import { IAheadBehind } from '../../models/branch'
 import { StashDiffViewerId } from '../stashing'
 import { enableFilteredChangesList } from '../../lib/feature-flag'
 import { OcticonButton } from '../lib/octicon-button'
+import { ChangesTreeList } from './changes-tree-list'
 
 const RowHeight = 29
 const StashIcon: OcticonSymbolVariant = {
@@ -1061,29 +1062,42 @@ export class ChangesList extends React.Component<
               {selectedChangesDescription}
             </div>
           </div>
-          <List
-            id="changes-list"
-            rowCount={files.length}
-            rowHeight={RowHeight}
-            rowRenderer={this.renderRow}
-            selectedRows={this.state.selectedRows}
-            selectionMode="multi"
-            onSelectionChanged={this.props.onFileSelectionChanged}
-            invalidationProps={{
-              workingDirectory: workingDirectory,
-              isCommitting: isCommitting,
-              focusedRow: this.state.focusedRow,
-            }}
-            onRowClick={this.props.onRowClick}
-            onRowDoubleClick={this.onRowDoubleClick}
-            onRowKeyboardFocus={this.onRowFocus}
-            onRowBlur={this.onRowBlur}
-            onScroll={this.onScroll}
-            setScrollTop={this.props.changesListScrollTop}
-            onRowKeyDown={this.onRowKeyDown}
-            onRowContextMenu={this.onItemContextMenu}
-            ariaLabel={filesDescription}
-          />
+          {this.props.changesListTreeViewVisible ? (
+            <ChangesTreeList
+              repository={this.props.repository}
+              workingDirectory={this.props.workingDirectory}
+              selectedFileIDs={this.props.selectedFileIDs}
+              onFileSelectionChanged={this.props.onFileSelectionChanged}
+              onIncludeChanged={this.props.onIncludeChanged}
+              availableWidth={this.props.availableWidth}
+              onOpenItemInExternalEditor={this.props.onOpenItemInExternalEditor}
+              dispatcher={this.props.dispatcher}
+            />
+          ) : (
+            <List
+              id="changes-list"
+              rowCount={files.length}
+              rowHeight={RowHeight}
+              rowRenderer={this.renderRow}
+              selectedRows={this.state.selectedRows}
+              selectionMode="multi"
+              onSelectionChanged={this.props.onFileSelectionChanged}
+              invalidationProps={{
+                workingDirectory: workingDirectory,
+                isCommitting: isCommitting,
+                focusedRow: this.state.focusedRow,
+              }}
+              onRowClick={this.props.onRowClick}
+              onRowDoubleClick={this.onRowDoubleClick}
+              onRowKeyboardFocus={this.onRowFocus}
+              onRowBlur={this.onRowBlur}
+              onScroll={this.onScroll}
+              setScrollTop={this.props.changesListScrollTop}
+              onRowKeyDown={this.onRowKeyDown}
+              onRowContextMenu={this.onItemContextMenu}
+              ariaLabel={filesDescription}
+            />
+          )}
         </div>
         {this.renderStashedChanges()}
         {this.renderCommitMessageForm()}
